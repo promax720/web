@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Vulnerability Scanner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .vulnerability-type {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .vulnerability-list {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chetany's Vulnerability Scanner</h1>
+    <form id="scan-form">
+        <input type="url" id="url" name="url" placeholder="Enter URL to scan (e.g., http://example.com)" required>
+        <input type="submit" value="Scan">
+    </form>
+    <div id="results"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#scan-form').submit(function(e) {
+                e.preventDefault();
+                $('#results').html('Scanning...');
+                $.ajax({
+                    url: '/scan',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        let resultHtml = '<h2>Scan Results:</h2>';
+                        for (let vulnType in response) {
+                            resultHtml += `<div class="vulnerability-type">${vulnType}:</div>`;
+                            if (response[vulnType].length > 0) {
+                                resultHtml += '<ul class="vulnerability-list">';
+                                response[vulnType].forEach(function(vuln) {
+                                    resultHtml += `<li>${vuln}</li>`;
+                                });
+                                resultHtml += '</ul>';
+                            } else {
+                                resultHtml += '<p>No vulnerabilities detected.</p>';
+                            }
+                        }
+                        $('#results').html(resultHtml);
+                    },
+                    error: function() {
+                        $('#results').html('An error occurred during the scan.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
